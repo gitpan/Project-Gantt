@@ -63,10 +63,17 @@ use vars qw[@EXPORT_OK %EXPORT_TAGS @ISA];
 sub monthsBetween {
 	my $date1 = shift;
 	my $date2 = shift;
-	$date1	= monthEnd($date1);
-	$date2	= monthBegin($date2);
-	my $rough = int(($date2-$date1)->month);
-	return $rough+2;
+
+    # Peter Weatherdon Jan 25, 2005
+    # Used new monthEarly and monthLate functions instead of monthBegin and 
+    # monthEnd because Class::Date has some problems calculating date
+    # differences at the boundaries.  For example if date1=2005-01-31 23:59:59
+    # and date2=2005-12-01 01:00:00 then the difference in months is 
+    # 9.95640678332187 instead of the expected 10 plus a bit.
+	$date1	= monthEarly($date1);
+	$date2	= monthLate($date2);
+	my $rough = ($date2-$date1)->month;
+	return int($rough)+1;
 }
 
 ##########################################################################
@@ -193,6 +200,36 @@ sub monthEnd {
 	$date	= $date->month_end();
 	$date	= dayEnd($date);
 	return $date;
+}
+
+
+##########################################################################
+#
+#   Function: monthEarly(date)
+#
+#   Author: Peter Weatherdon
+#
+#   Purpose: Returns the date, reset to the 5th of the month. 
+#
+##########################################################################
+sub monthEarly {
+    my $date = shift;
+    return new Class::Date ($date->year . "-" . $date->month . "-" . "05");
+}
+
+
+##########################################################################
+#
+#   Function: monthLate(date)
+#
+#   Author: Peter Weatherdon
+#
+#   Purpose: Returns the date, reset to the 25th of the month. 
+#
+##########################################################################
+sub monthLate {
+    my $date = shift;
+    return new Class::Date ($date->year . "-" . $date->month . "-" . "25");
 }
 
 ##########################################################################

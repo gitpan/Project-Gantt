@@ -106,7 +106,7 @@ I<addTask> attaches a B<Project::Gantt::Task> object to the B<Project::Gantt> in
 
 =item addSubProject()
 
-I<addSubProject> returns an instance of B<Project::Gantt> anchored underneath the instance that called it. This reference may then be used to call I<addTask> and create a container relationship with B<Project::Gantt::Task> objects. Currently, the only necesarry parameter is a description of the sub-project.
+I<addSubProject> returns an instance of B<Project::Gantt> anchored underneath the instance that called it. Thanks to Peter Weatherdon, you can now create nested sub-projects using this method on an existing sub-project object. This reference may then be used to call I<addTask> and create a container relationship with B<Project::Gantt::Task> objects. Currently, the only necesarry parameter is a description of the sub-project.
 
 =item display()
 
@@ -170,7 +170,13 @@ B<doSwimLanes> is a boolean that determines whether lines should be drawn sepera
 
 =head1 AUTHOR
 
-Alexander Christian Westholm, E<lt>awestholm@verizon.netE<gt>
+Alexander Christian Westholm, E<lt>awestholm AT verizon.netE<gt>
+
+=head1 CHANGES
+
+August, 2004: Original Version
+
+January 2005: Modifications made by Peter Weatherdon (peter.weatherdon AT us.cd-adapco.com), including various bug fixes, and nested sub-projects.
 
 =head1 SEE ALSO
 
@@ -178,7 +184,7 @@ L<Image::Magick>, L<Class::Date>
 
 =head1 COPYRIGHT
 
-Copyright 2004, Alexander Christian Westholm.
+Copyright 2005, Alexander Christian Westholm.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -240,13 +246,13 @@ sub addTask {
 	die "Must provide end date for task!" if not $opts{end};
 	if(not $me->{parent}){
 		if(not $me->{resources}->{$opts{resource}->getName()}){
-			die "Mis-assignment of task resources!";
+			die "Mis-assignment of task resources!!";
 		}
 	}else{
 		if(not $me->{parent}->{resources}->{
 			$opts{resource}->getName()}){
 
-			die "Mis-assignment of task resources!";
+			#die "Mis-assignment of task resources!";
 		}
 	}
 	$opts{start}	.= " 09:00:00" if $opts{start} !~ /\:/;
@@ -328,9 +334,16 @@ sub _handleDates {
 	if(($oStrt > $me->{startDate}) or ($oStrt == -1)){
 		$prnt->getStartDate($me->{startDate});
 	}
-	if($oEnd < $me->{endDate}){
+
+    # Peter Weatherdon Jan 25, 2005 
+    # Added check for $oEnd == 0
+    if(($oEnd < $me->{endDate}) or ($oEnd == 0)){ 
 		$prnt->getEndDate($me->{endDate});
 	}
+
+    # Peter Weatherdon: Jan 19, 2005
+    # Recursively call handleDates to support nested sub-projects
+    $prnt->_handleDates();  
 }
 
 sub setParent {

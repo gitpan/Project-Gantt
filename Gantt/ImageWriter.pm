@@ -89,7 +89,9 @@ sub display {
 		skin	=>	$me->{skin},
 		root	=>	$me->{root});
 	$hdr->display($me->{mode});
-	$me->writeBars();
+
+    # PW added parameters, required by new writeBars with recursive support
+    $me->writeBars($me->{'root'}, 40);  
 	$me->{canvas}->Write($img);
 }
 
@@ -100,14 +102,19 @@ sub display {
 #	Purpose: Iterates over all tasks/subprojects contained by the root
 #		object, and creates SpanInfo and TimeSpan objects for each
 #		item, then draws them.
+#       
+#       Peter Weatherdon: Jan 19, 2005
+#           Modified this method to allow recursion for support of nested
+#           projects (more than 1 level deep)
 #
 ##########################################################################
 sub writeBars {
 	my $me		= shift;
-	my @tasks	= $me->{root}->getTasks();
-	my @projs	= $me->{root}->getSubProjs();
+    my $project = shift;
+    my $height  = shift;
 	my $stDate	= $me->{root}->getStartDate();
-	my $height	= 40;
+    my @tasks   = $project->getTasks();
+    my @projs   = $project->getSubProjs();
 
 	# write tasks before sub-projects.. adjust height as we go
 	for my $tsk (@tasks,@projs){
@@ -123,23 +130,13 @@ sub writeBars {
 			rootStr	=>	$stDate);
 		$bar->display($me->{mode},$height);
 		$height	+= 20;
+
+        # if the task is a sub-project then draw recursively
 		if($tsk->isa("Project::Gantt")){
-			for my $stsk ($tsk->getTasks()){
-				my $ninfo= new Project::Gantt::SpanInfo(
-					canvas	=>	$me->{canvas},
-					skin	=>	$me->{skin},
-					task	=>	$stsk);
-				$ninfo->display($height);
-				my $ibar	= new Project::Gantt::TimeSpan(
-					canvas	=>	$me->{canvas},
-					skin	=>	$me->{skin},
-					task	=>	$stsk,
-					rootStr	=>	$stDate);
-				$ibar->display($me->{mode},$height);
-				$height += 20;
-			}
+            $me->writeBars ($tsk, $height);
 		}
 	}
 }
+
 
 1;

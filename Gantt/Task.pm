@@ -109,7 +109,9 @@ sub _handleDates {
 	if(($oStrt > $me->{startDate}) or ($oStrt == -1)){
 		$prnt->getStartDate($me->{startDate});
 	}
-	if($oEnd < $me->{endDate}){
+
+    # Peter Weatherdon added check for $oEnd == 0
+	if(($oEnd < $me->{endDate}) or ($oEnd == 0)) {
 		$prnt->getEndDate($me->{endDate});
 	}
 	$prnt->_handleDates();
