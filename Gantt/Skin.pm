@@ -41,10 +41,34 @@ sub new {
 		containerFill	=>	$ops{containerFill}	|| 'grey',
 		itemFill	=>	$ops{itemFill}		|| 'blue',
 		background	=>	$ops{background}	|| 'white',
-		font		=>	$ops{font}		|| '@font.ttf',
+		font		=>	$ops{font}		|| _selfLocation().'/Vera.ttf',
 		doSwimLanes	=>	(defined($ops{doSwimLanes})?$ops{doSwimLanes}:1),
 	);
 	return bless \%members, $cls;
+}
+
+
+##########################################################################
+#
+#	Function: _selfLocation
+#
+#	Purpose: Traverse @INC looking for a subdirectory containing this
+#		module. When found, this subdirectory will be used as the
+#		path to a default copy of Bitstream Vera for the skin's
+#		font... assuming nothing else is provided.
+#
+#	NOTE: This could probably be done better... I don't like unary
+#		file tests...
+#
+##########################################################################
+sub _selfLocation {
+	my $location = undef;
+	for my $path (@INC){
+		if(defined -f "$path/Project/Gantt/Skin.pm"){
+			$location = "$path/Project/Gantt";
+		}
+	}
+	return $location;
 }
 
 ##########################################################################

@@ -156,7 +156,7 @@ B<background> is quite obviously the background color. This defaults to white.
 
 =item font
 
-B<font> is the name of the font file as it is passed to B<Image::Magick>. See the docs for that module for more information. This defaults to B<'@font.ttf'>. This means that it searches the directory from which the script was run for a true type font called font.ttf.
+B<font> is the name of the font file as it is passed to B<Image::Magick>. See the docs for that module for more information. The default value for this property is determined by searching @INC for the directory of your Project::Gantt installation, and is set to the copy of Bitstream Vera included in the distribution.
 
 =item doTitle
 
